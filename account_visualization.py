@@ -19,13 +19,15 @@ def generate_account_visualization(
         for _ in range(0, size, step):
             rows.append([f"{field}: {data_type}"])
     df = pd.DataFrame(rows, columns=["field"])
-    labels = list(reversed(df['field'].unique().tolist()))
+    labels = list(reversed(df["field"].unique().tolist()))
     field_to_idx = dict([(c, i) for i, c in enumerate(labels)])
     df["row"] = (df.index // int(num_cols)) * num_cols * step
     df["col"] = ((df.index % num_cols) + 1) * step
     vis_df = df.set_index("row").pivot(columns="col").field.replace(field_to_idx)
     diff = vis_df.diff()
-    vis_df = vis_df[(diff.abs().sum(axis=1) != 0) | ((diff == diff).sum(axis=1) != vis_df.shape[1])]
+    vis_df = vis_df[
+        (diff.abs().sum(axis=1) != 0) | ((diff == diff).sum(axis=1) != vis_df.shape[1])
+    ]
     plt.rcParams.update({"font.size": 18, "font.family": "Futura", "axes.labelpad": 15})
     size = 1
     cbar_size = 0.5
@@ -87,7 +89,7 @@ def generate_account_visualization(
     ax.tick_params(axis="both", which="minor", labelsize=minor_ax_font_size)
     plt.tight_layout()
     nrows = vis_df.shape[0]
-    plt.subplots_adjust(top=1 - (1.5/nrows))
+    plt.subplots_adjust(top=1 - (1.5 / nrows))
     if title:
         ax.set_title(title, fontsize=title_font_size, pad=20)
         plt.savefig(dest_folder + "/" + title.lower().replace(" ", "_") + ".png")
@@ -117,35 +119,35 @@ if __name__ == "__main__":
     generate_account_visualization(mint, title="Mint Layout")
 
     token_metadata = OrderedDict(
-        key=('Key', 1),
-        update_authority=('Pubkey', 32),
-        mint=('Pubkey', 32),
-        name_size=('usize', 4),
-        name=('String', 32),
-        symbol_size=('usize', 4),
-        symbol=('String', 10),
-        uri_size=('usize', 4),
-        uri=('String', 200),
-        seller_fee_basis_points=('u16', 2),
-        creators_size=('usize', 4),
-        creator0_pubkey=('Pubkey', 32),
-        creator0_verified=('bool', 1),
-        creator0_share=('u8', 1),
-        creator1_pubkey=('Pubkey', 32),
-        creator1_verified=('bool', 1),
-        creator1_share=('u9', 1),
-        creator2_pubkey=('Pubkey', 32),
-        creator2_verified=('bool', 1),
-        creator2_share=('u8', 1),
-        creator3_pubkey=('Pubkey', 32),
-        creator3_verified=('bool', 1),
-        creator3_share=('u8', 1),
-        creator4_pubkey=('Pubkey', 32),
-        creator4_verified=('bool', 1),
-        creator4_share=('u8', 1),
-        primary_sale_happened=('bool', 1),
-        is_mutable=('bool', 1),
-        edition_nonce=('Option<u8>', 5),
-        padding=('bytes', 176)
+        key=("Key", 1),
+        update_authority=("Pubkey", 32),
+        mint=("Pubkey", 32),
+        name_size=("usize", 4),
+        name=("String", 32),
+        symbol_size=("usize", 4),
+        symbol=("String", 10),
+        uri_size=("usize", 4),
+        uri=("String", 200),
+        seller_fee_basis_points=("u16", 2),
+        creators_size=("usize", 4),
+        creator0_pubkey=("Pubkey", 32),
+        creator0_verified=("bool", 1),
+        creator0_share=("u8", 1),
+        creator1_pubkey=("Pubkey", 32),
+        creator1_verified=("bool", 1),
+        creator1_share=("u9", 1),
+        creator2_pubkey=("Pubkey", 32),
+        creator2_verified=("bool", 1),
+        creator2_share=("u8", 1),
+        creator3_pubkey=("Pubkey", 32),
+        creator3_verified=("bool", 1),
+        creator3_share=("u8", 1),
+        creator4_pubkey=("Pubkey", 32),
+        creator4_verified=("bool", 1),
+        creator4_share=("u8", 1),
+        primary_sale_happened=("bool", 1),
+        is_mutable=("bool", 1),
+        edition_nonce=("Option<u8>", 5),
+        padding=("bytes", 176),
     )
     generate_account_visualization(token_metadata, title="Token Metadata Layout")
