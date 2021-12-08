@@ -7,25 +7,26 @@ import matplotlib.pyplot as plt
 
 
 def generate_account_visualization(
-    account: Dict[str, Tuple[str, int]], num_cols=16, title=None, **sns_kwargs
+    account: Dict[str, Tuple[str, int]],
+    dest_folder="images",
+    num_cols=16,
+    title=None,
+    **sns_kwargs,
 ):
     rows = []
     step = min([size for _, size in account.values()])
     for field, (data_type, size) in account.items():
         for _ in range(0, size, step):
             rows.append([f"{field}: {data_type}"])
-
     df = pd.DataFrame(rows, columns=["field"])
     df["row"] = (df.index // int(num_cols)) * num_cols * step
     df["col"] = ((df.index % num_cols) + 1) * step
     vis_df = df.set_index("row").pivot(columns="col").field
-
     labels = list(reversed(df["field"].unique().tolist()))
     field_to_idx = dict([(c, i) for i, c in enumerate(labels)])
     plt.rcParams.update({"font.size": 18, "font.family": "Futura", "axes.labelpad": 15})
-
-    size = 2
-    cbar_size = 1
+    size = 1
+    cbar_size = 0.5
     nrows, ncols = vis_df.shape
     fig, axes = plt.subplots(
         1,
@@ -46,11 +47,10 @@ def generate_account_visualization(
     )
     cbar = ax.collections[0].colorbar
     r = cbar.vmax - cbar.vmin
-
     title_font_size = 3 * num_cols
     label_font_size = 2 * num_cols
-    major_ax_font_size = int(1.5 * num_cols)
-    minor_ax_font_size = num_cols
+    major_ax_font_size = num_cols
+    minor_ax_font_size = int(0.7 * num_cols)
     labelpad = num_cols
     start = 1 / (2 * len(account))
     end = 1 - start
@@ -76,12 +76,14 @@ def generate_account_visualization(
     )
     ax.tick_params(axis="both", which="major", labelsize=major_ax_font_size)
     ax.tick_params(axis="both", which="minor", labelsize=minor_ax_font_size)
-    ax.figure.subplots_adjust(bottom=0.5, top=0.9, left=0.2, right=0.8)
-    plt.subplots_adjust(top=0.9)
     plt.tight_layout()
+    nrows = vis_df.shape[0]
+    plt.subplots_adjust(top=1 - (1.5/nrows))
     if title:
-        ax.set_title(title, fontsize=title_font_size, pad=30)
-    plt.show()
+        ax.set_title(title, fontsize=title_font_size, pad=20)
+        plt.savefig(dest_folder + "/" + title.lower().replace(" ", "_") + ".png")
+    else:
+        plt.show()
 
 
 if __name__ == "__main__":
@@ -104,3 +106,21 @@ if __name__ == "__main__":
     )
     generate_account_visualization(token_account, title="Token Account Layout")
     generate_account_visualization(mint, title="Mint Layout")
+
+    derivative_metadata = OrderedDict(
+        tag=('AccountTag', 8),
+        bump=('u64', 8),
+        instrument_type=('InstrumentType', 8),
+        strike=('Fractional', 16),
+        initialization_time=('UnixTimestamp', 8),
+        full_funding_period=('UnixTimestamp', 8),
+        minimum_funding_period=('UnixTimestamp', 8),
+        oracle_type=('OracleType', 8),
+        price_oracle=('Pubkey', 32),
+        market_product_group=('Pubkey', 32),
+        close_authority=('Pubkey', 32),
+        clock=('Pubkey', 32),
+        last_funding_time=('UnixTimestamp', 8),
+        expired=('ExpirationStatus', 8),
+    )
+    generate_account_visualization(derivative_metadata, num_cols=8, title="Derivative Metadata Layout")
