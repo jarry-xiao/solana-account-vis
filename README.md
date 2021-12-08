@@ -4,6 +4,7 @@ Use Seaborn to visually interpret the byte layout of Solana account types
 # Usage
 ```
 from account_visualization import generate_account_visualization
+from collections import OrderedDict
 
 token_account = OrderedDict(
     mint=('Pubkey', 32),
