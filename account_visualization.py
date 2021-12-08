@@ -112,7 +112,7 @@ if __name__ == "__main__":
         mint_authority=("Pubkey", 32),
         supply=("u64", 8),
         decimals=("u8", 1),
-        is_initialized=(bool, 1),
+        is_initialized=("bool", 1),
         freeze_authority=("COption<Pubkey>", 36),
     )
     generate_account_visualization(token_account, title="Token Account Layout")
@@ -135,7 +135,7 @@ if __name__ == "__main__":
         creator0_share=("u8", 1),
         creator1_pubkey=("Pubkey", 32),
         creator1_verified=("bool", 1),
-        creator1_share=("u9", 1),
+        creator1_share=("u8", 1),
         creator2_pubkey=("Pubkey", 32),
         creator2_verified=("bool", 1),
         creator2_share=("u8", 1),
