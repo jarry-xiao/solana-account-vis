@@ -29,3 +29,5 @@ generate_account_visualization(mint, title="Mint Layout")
 ```
 
 # Output
+![](images/token_account_layout.png)
+![](images/mint_layout.png)
