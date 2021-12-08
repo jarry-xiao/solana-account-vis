@@ -129,6 +129,7 @@ if __name__ == "__main__":
         uri_size=("usize", 4),
         uri=("String", 200),
         seller_fee_basis_points=("u16", 2),
+        creators_flag=("bool", 1),
         creators_size=("usize", 4),
         creator0_pubkey=("Pubkey", 32),
         creator0_verified=("bool", 1),
