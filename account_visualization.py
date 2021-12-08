@@ -19,11 +19,13 @@ def generate_account_visualization(
         for _ in range(0, size, step):
             rows.append([f"{field}: {data_type}"])
     df = pd.DataFrame(rows, columns=["field"])
+    labels = list(reversed(df['field'].unique().tolist()))
+    field_to_idx = dict([(c, i) for i, c in enumerate(labels)])
     df["row"] = (df.index // int(num_cols)) * num_cols * step
     df["col"] = ((df.index % num_cols) + 1) * step
-    vis_df = df.set_index("row").pivot(columns="col").field
-    labels = list(reversed(df["field"].unique().tolist()))
-    field_to_idx = dict([(c, i) for i, c in enumerate(labels)])
+    vis_df = df.set_index("row").pivot(columns="col").field.replace(field_to_idx)
+    diff = vis_df.diff()
+    vis_df = vis_df[(diff.abs().sum(axis=1) != 0) | ((diff == diff).sum(axis=1) != vis_df.shape[1])]
     plt.rcParams.update({"font.size": 18, "font.family": "Futura", "axes.labelpad": 15})
     size = 1
     cbar_size = 0.5
@@ -64,7 +66,14 @@ def generate_account_visualization(
     ax.xaxis.tick_top()
     ax.xaxis.set_label_position("top")
     ax.set_xticklabels([f"+{x}" for x in vis_df.columns.tolist()], minor=False)
-    ax.set_yticklabels(vis_df.index.tolist(), minor=False)
+    yticklabels = []
+    for curr, prev in zip(vis_df.index[1:], vis_df.index):
+        if curr - prev != step * num_cols:
+            yticklabels.append(f"{prev} - {curr}")
+        else:
+            yticklabels.append(f"{prev}")
+    yticklabels.append(str(vis_df.index[-1]))
+    ax.set_yticklabels(yticklabels, minor=False)
     ax.tick_params(axis="y", labelrotation=0)
     ax.set_xlabel(None)
     ax.set_ylabel(
@@ -107,20 +116,36 @@ if __name__ == "__main__":
     generate_account_visualization(token_account, title="Token Account Layout")
     generate_account_visualization(mint, title="Mint Layout")
 
-    derivative_metadata = OrderedDict(
-        tag=('AccountTag', 8),
-        bump=('u64', 8),
-        instrument_type=('InstrumentType', 8),
-        strike=('Fractional', 16),
-        initialization_time=('UnixTimestamp', 8),
-        full_funding_period=('UnixTimestamp', 8),
-        minimum_funding_period=('UnixTimestamp', 8),
-        oracle_type=('OracleType', 8),
-        price_oracle=('Pubkey', 32),
-        market_product_group=('Pubkey', 32),
-        close_authority=('Pubkey', 32),
-        clock=('Pubkey', 32),
-        last_funding_time=('UnixTimestamp', 8),
-        expired=('ExpirationStatus', 8),
+    token_metadata = OrderedDict(
+        key=('Key', 1),
+        update_authority=('Pubkey', 32),
+        mint=('Pubkey', 32),
+        name_size=('usize', 4),
+        name=('String', 32),
+        symbol_size=('usize', 4),
+        symbol=('String', 10),
+        uri_size=('usize', 4),
+        uri=('String', 200),
+        seller_fee_basis_points=('u16', 2),
+        creators_size=('usize', 4),
+        creator0_pubkey=('Pubkey', 32),
+        creator0_verified=('bool', 1),
+        creator0_share=('u8', 1),
+        creator1_pubkey=('Pubkey', 32),
+        creator1_verified=('bool', 1),
+        creator1_share=('u9', 1),
+        creator2_pubkey=('Pubkey', 32),
+        creator2_verified=('bool', 1),
+        creator2_share=('u8', 1),
+        creator3_pubkey=('Pubkey', 32),
+        creator3_verified=('bool', 1),
+        creator3_share=('u8', 1),
+        creator4_pubkey=('Pubkey', 32),
+        creator4_verified=('bool', 1),
+        creator4_share=('u8', 1),
+        primary_sale_happened=('bool', 1),
+        is_mutable=('bool', 1),
+        edition_nonce=('Option<u8>', 5),
+        padding=('bytes', 176)
     )
-    generate_account_visualization(derivative_metadata, num_cols=8, title="Derivative Metadata Layout")
+    generate_account_visualization(token_metadata, title="Token Metadata Layout")
